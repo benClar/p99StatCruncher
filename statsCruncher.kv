@@ -1,0 +1,21 @@
+#:kivy 1.0.9
+InfoForm:  # <InfoForm@BoxLayout>:  # orientation: "vertical"  # BoxLayout:
+
+<-MyProgressBar@ProgressBar>:
+    canvas:
+        Color:
+            rgb: 1, .5, 0
+        BorderImage:
+            border: (12, 12, 12, 12)
+            pos: self.x, self.center_y - 12
+            size: self.width, 40
+        Color:
+            rgb: 1, .2, 0
+        BorderImage:
+            border: [int(min(self.width * (self.value / float(self.max)) if self.max else 0, 12))] * 4
+            pos: self.x, self.center_y - 12
+            size: self.width * (self.value / float(self.max)) if self.max else 0, 40
+    Label:
+        pos: root.center_x, root.center_y + 5
+        size: min(self.size)*0.2, min(self.size)*0.2
+        text: "TEST"

@@ -1,8 +1,8 @@
-import time
 import sys
 from DPS_Exceptions import ReadException
 from ACTION_TYPE import ACTION_TYPE
 from Display import StatsCruncherApp
+import time
 
 target = "/Users/benjaminclarke/Applications/Wineskin/Project1999.app/Contents/Resources/drive_c/P99/Logs/eqlog_"
 
@@ -22,29 +22,38 @@ class Player_Info(object):
 class Timer(object):
 
     def __init__(self):
-        self.time = 0
+        self.start = time.time()
 
     def reset(self):
-        self.time = 0
+        self.time = time.time()
+
+    @property
+    def curr_time(self):
+        return time.time() - self.start
 
 
 class Group(object):
 
-    def __init__(self):
-        self.group = {'group_mem': {'self': Player_Info()}, 'non_group_mem': {}, 'time': Timer()}
+    def __init__(self, player):
+        self.group = {'group_mem': {player: Player_Info()}, 'non_group_mem': {}, 'time': Timer()}
+        self.player = player
+
+    @property
+    def group_members(self):
+        return self.group['group_mem']
 
     def in_group(self, name):
-        if name in self.group['group_mem']:
+        if self.convert_self(name) in self.group_members:
             return True
         return False
 
     def convert_self(self, name):
         if name == 'You':
-            return 'self'
+            return self.player
         return name
 
     def add_damage(self, name, act_type, damage, mem_type='group_mem'):
-        self.info[mem_type][self.convert_self(name)].add_damage(damage, act_type)
+        self.group[mem_type][self.convert_self(name)].add_damage(damage, act_type)
 
     def grp_mem(self, name):
         return self.group['group_mem'][name]
@@ -72,7 +81,7 @@ def get_logs(args):
 
 
 def run(args):
-    StatsCruncherApp(Group(), get_logs(args)).run()
+    StatsCruncherApp(args[1], Group(args[1]), get_logs(args)).run()
 
 if __name__ == "__main__":
     run(sys.argv)

@@ -10,13 +10,22 @@ target = "/Users/benjaminclarke/Applications/Wineskin/Project1999.app/Contents/R
 class Player_Info(object):
 
     def __init__(self):
-        self.info = {'Damage': 0, ACTION_TYPE.MELEE: 0, ACTION_TYPE.DOT: 0}
+        self.info = {'curr_Damage': 0, 'total_damage': 0, ACTION_TYPE.MELEE: 0, ACTION_TYPE.DOT: 0, 'time': Timer()}
 
-    def DPS(self, time):
-        return self.info['Damage'] / time
+    def DPS(self):
+        return self.info['curr_Damage'] / self.info['time'].curr_time
 
     def add_damage(self, damage, act_type):
-        self.info['Damage'] += int(damage)
+        self.info['curr_Damage'] += int(damage)
+        self.info['total_damage'] += int(damage)
+
+    @property
+    def total_damage(self):
+        return self.info['total_damage']
+
+    def reset(self):
+        self.info['time'].reset()
+        self.info['curr_Damage'] = 0
 
 
 class Timer(object):
@@ -25,7 +34,7 @@ class Timer(object):
         self.start = time.time()
 
     def reset(self):
-        self.time = time.time()
+        self.start = time.time()
 
     @property
     def curr_time(self):
@@ -35,12 +44,12 @@ class Timer(object):
 class Group(object):
 
     def __init__(self, player):
-        self.group = {'group_mem': {player: Player_Info()}, 'non_group_mem': {}, 'time': Timer()}
+        self._group = {'group_mem': {player: Player_Info()}, 'non_group_mem': {}}
         self.player = player
 
     @property
     def group_members(self):
-        return self.group['group_mem']
+        return self._group['group_mem']
 
     def in_group(self, name):
         if self.convert_self(name) in self.group_members:
@@ -52,17 +61,34 @@ class Group(object):
             return self.player
         return name
 
+    def DPS(self, name):
+        """Returns DPS of requested member"""
+        assert name in self._group['group_mem']
+        return self.grp_mem(name).DPS()
+
     def add_damage(self, name, act_type, damage, mem_type='group_mem'):
-        self.group[mem_type][self.convert_self(name)].add_damage(damage, act_type)
+        self._group[mem_type][self.convert_self(name)].add_damage(damage, act_type)
 
     def grp_mem(self, name):
-        return self.group['group_mem'][name]
+        return self._group['group_mem'][name]
 
     def add_member(self, mem_name, mem_type='group_mem'):
-        self.group[mem_type][mem_name] = Player_Info()
+        self._group[mem_type][mem_name] = Player_Info()
 
     def remove_member(self, mem_name, mem_type='group_mem'):
-        self.group[mem_type].pop(mem_name, 0)
+        self._group[mem_type].pop(mem_name, 0)
+
+    def percentage_damage(self, name):
+        total = 0
+        for member, details in self.group_members.items():
+            total += details.total_damage
+
+        if total > 0:
+            return (self.grp_mem(name).total_damage / total) * 100
+        return 100
+
+    def reset(self, name):
+        self.grp_mem(name).reset()
 
 
 def val_args(args):

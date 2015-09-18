@@ -1,6 +1,19 @@
 #:kivy 1.0.9
-InfoForm:  # <InfoForm@BoxLayout>:  # orientation: "vertical"  # BoxLayout:
-
+MainWindow:  # <MainWindow@BoxLayout>:  # BoxLayout:
+    orientation: "vertical"  
+    ActionBar:
+        ActionView:
+            use_separator: False
+            ActionPrevious:
+                app_icon: 'images/logo.png'
+                title: 'P1999 Stat Cruncher'
+                with_previous: False
+            ActionGroup:
+                pos_hint: {'left': 1}
+                text: "File"
+                mode: "spinner"
+                ActionButton:
+                    text: "Preferences"        
 <-MyProgressBar@ProgressBar>:
     canvas:
         Color:
@@ -19,4 +32,18 @@ InfoForm:  # <InfoForm@BoxLayout>:  # orientation: "vertical"  # BoxLayout:
         id: DPS_lab
         pos: root.center_x, root.center_y + 5
         size: min(self.size)*0.2, min(self.size)*0.2
-        text: "TEST"
+<StatEntry>
+    Label:
+        id: stat_name
+        size_hint: (0.2, 1)
+        pos_hint: {'center_y': .57}
+    MyProgressBar:
+        id: stat_prog
+        value: 0
+        max: 100
+        size_hint: (0.6, 1)
+    Button:
+        id: reset_timer
+        text: "Reset"
+        size_hint: (0.2, .4)
+        pos_hint: {'center_y': .57}
